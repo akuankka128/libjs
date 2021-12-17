@@ -4,36 +4,41 @@
  * @returns {Buffer}
  */
 function encode(int) {
-	/** 7 bits */
-	const MAX_CHUNK = 0b1111111;
+    /** 7 bits */
+    const MAX_CHUNK = 0b1111111;
 
-	/** why the fuck is there sO MUCH MATH IN ONE LINE @todo clean this shit up */
-	var output = Buffer.allocUnsafe(Math.ceil(Math.ceil(Math.log2(int)) / 7));
+    var size = Math.ceil(Math.log2(int) / 7);
+    if(size === -Infinity || size === 0) {
+        // because fuck math amirite
+        size = 1;
+    }
 
-	/** input & 7 bits */
-	var chunk = int & MAX_CHUNK;
-	var index = 0;
+    var output = Buffer.allocUnsafe(size);
 
-	while(chunk != 0) {
-		if((int >>= 7) & MAX_CHUNK) {
-			// set 8th bit to 1 to signal
-			// that the parser should
-			// keep reading
-			output [index] |= 0b10000000;
-		} else {
-			// is this more efficient
-			// than reassignment?
-			output [index] &= 0;
-		}
+    /** input & 7 bits */
+    var chunk = int & MAX_CHUNK;
+    var index = 0;
 
-		// add 7-bit group to chunk
-		output [index] |= chunk;
+    while(chunk != 0) {
+        if((int >>= 7) & MAX_CHUNK) {
+            // set 8th bit to 1 to signal
+            // that the parser should
+            // keep reading
+            output [index] |= 0b10000000;
+        } else {
+            // is this more efficient
+            // than reassignment?
+            output [index] &= 0;
+        }
 
-		index += 1;
-		chunk = int & MAX_CHUNK;
-	}
+        // add 7-bit group to chunk
+        output [index] |= chunk;
 
-	return output;
+        index += 1;
+        chunk = int & MAX_CHUNK;
+    }
+
+    return output;
 }
 
 /**
@@ -42,25 +47,25 @@ function encode(int) {
  * @returns {Number}
  */
 function decode(varint) {
-	var index = 0;
-	var value = 0;
+    var index = 0;
+    var value = 0;
 
-	while(true) {
-		var chunk = varint [index];
+    while(true) {
+        var chunk = varint [index];
 
-		// extract the 7-bit group
-		chunk = chunk & 0b1111111;
+        // extract the 7-bit group
+        chunk = chunk & 0b1111111;
 
-		// add the little-endian number to value
-		value += chunk << 7 * index;
+        // add the little-endian number to value
+        value += chunk << 7 * index;
 
-		// check if the continuation bit is unset
-		if((varint [index++] & 0b10000000) === 0) {
-			break;
-		}
-	}
+        // check if the continuation bit is unset
+        if((varint [index++] & 0b10000000) === 0) {
+            break;
+        }
+    }
 
-	return value;
+    return value;
 }
 
 module.exports = { encode, decode };
