@@ -1,28 +1,23 @@
 /**
- * Encodes a number into a VarInt (note: little-endian)
+ * Encodes a number into a VarInt
  * @param {Number} int 
  * @returns {Buffer}
  */
-function encode(int) {
+ function encode(int) {
     /** 7 bits */
     const MAX_CHUNK = 0b1111111;
 
-    var size = Math.ceil(Math.log2(int) / 7);
-    if(size === -Infinity || size === 0) {
-        // because fuck math amirite
-        size = 1;
-    }
-
+    var size = Math.ceil(int / MAX_CHUNK);
     var output = Buffer.allocUnsafe(size);
 
     /** input & 7 bits */
     var chunk = int & MAX_CHUNK;
     var index = 0;
 
-    while(chunk != 0) {
+    while(int != 0 || chunk != 0) {
         if((int >>= 7) & MAX_CHUNK) {
             // set 8th bit to 1 to signal
-            // that the parser should
+            // that the decoder should
             // keep reading
             output [index] |= 0b10000000;
         } else {
@@ -56,7 +51,7 @@ function decode(varint) {
         // extract the 7-bit group
         chunk = chunk & 0b1111111;
 
-        // add the little-endian number to value
+        // add the number to the value
         value += chunk << 7 * index;
 
         // check if the continuation bit is unset
