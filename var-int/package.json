@@ -1,0 +1,17 @@
+{
+  "name": "var-int",
+  "version": "1.0.0",
+  "description": "Suite for encoding and decoding variable-length integers",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [
+    "networking",
+    "encoding",
+    "decoding",
+    "compression"
+  ],
+  "author": "akuankka128 @ GitHub",
+  "license": "MIT"
+}
