@@ -80,9 +80,9 @@ export default class Base64 {
 
   /**
    * @param {string} data Base-64-encoded data
-   * @returns {string}
+   * @returns {Uint8Array}
    */
-  static Decode (data) {
+  static DecodeToBinary (data) {
     if (data.length % 4 !== 0) {
       throw new SyntaxError('base64 data must have 4-character alignment');
     }
@@ -113,9 +113,16 @@ export default class Base64 {
       + this.#IsPadding(lastBlock.at(-2))
     ) || -srcArray.byteLength;
 
-    return this.#TEXT_DECODER
-      .decode(destArray)
-      .slice(0, -unpadCount);
+    return destArray.subarray(0, -unpadCount);
+  }
+
+  /**
+   * @param {string} data Base-64-encoded data
+   * @returns {string}
+   */
+  static DecodeToText (data) {
+    const binary = this.DecodeToBinary(data);
+    return this.#TEXT_DECODER.decode(binary);
   }
 
   /**
