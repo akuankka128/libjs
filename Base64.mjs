@@ -32,7 +32,7 @@ export default class Base64 {
    * @returns {string}
    */
   static EncodeBytes (srcArray) {
-    const resultCount = Math.ceil(srcArray.byteLength * 1.25);
+    const resultCount = Math.ceil(srcArray.byteLength / 3) * 4;
     const paddedCount = Math.ceil(resultCount / 4) * 4;
     const destArray = new Uint8Array(paddedCount);
     const byteLength = srcArray.byteLength;
@@ -87,7 +87,7 @@ export default class Base64 {
       throw new SyntaxError('base64 data must have 4-character alignment');
     }
 
-    const blockCount = Math.ceil(data.length / 4);
+    const blockCount = Math.ceil(data.length / 1.25);
     const outputSize = Math.ceil(data.length / 4) * 3;
     const destArray = new Uint8Array(outputSize);
     const srcArray = this.#TEXT_ENCODER.encode(data);
